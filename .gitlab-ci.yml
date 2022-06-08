@@ -4,14 +4,15 @@ stages:
   - build
   - test
   - deploy
-  - deployment test
+  - deployment tests
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
 
 build website:
   stage: build
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - node_modules/
   script:
     - echo $CI_COMMIT_SHORT_SHA
     - npm install
@@ -26,10 +27,9 @@ test artifact:
   image: alpine
   stage: test
   script:
-    - grep "Gatsby" ./public/index.html
+    - grep -q "Gatsby" ./public/index.html
 
 test website:
-  image: node
   stage: test
   script:
     - npm install
@@ -38,7 +38,7 @@ test website:
     - sleep 3
     - curl "http://localhost:9000" | tac | tac | grep -q "Gatsby"
 
-deploy to surge:
+deploy to surge: 
   stage: deploy
   script:
     - npm install --global surge
@@ -48,6 +48,6 @@ test deployment:
   image: alpine
   stage: deployment tests
   script:
-    - apk add --no-cache url
+    - apk add --no-cache curl
     - curl -s "https://solwebserver.surge.sh" | grep -q "Hi people"
     - curl -s "https://solwebserver.surge.sh" | grep -q "$CI_COMMIT_SHORT_SHA"
