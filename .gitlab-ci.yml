@@ -1,16 +1,19 @@
-image: node
+image: node:10
 
 stages:
   - build
   - test
   - deploy
+  - deployment test
 
 build website:
   stage: build
   script:
+    - echo $CI_COMMIT_SHORT_SHA
     - npm install
     - npm install -g gatsby-cli
     - gatsby build
+    - sed -i "s/%%VERSION%%/$CI_COMMIT_SHORT_SHA/" ./public/index.html
   artifacts:
     paths:
       - ./public
@@ -36,3 +39,11 @@ deploy to surge:
   script:
     - npm install --global surge
     - surge --project ./public --domain solwebserver.surge.sh
+
+test deployment:
+  image: alpine
+  stage: deployment tests
+  script:
+    - apk add --no-cache url
+    - curl -s "https://solwebserver.surge.sh" | grep -q "Hi people"
+    - curl -s "https://solwebserver.surge.sh" | grep -q "$CI_COMMIT_SHORT_SHA"
