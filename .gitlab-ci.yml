@@ -54,7 +54,7 @@ deploy staging:
 
 deploy production: 
   stage: deploy production
-   environment:
+  environment:
     name: production
     url: http://$PRODUCTION_DOMAIN
   script:
