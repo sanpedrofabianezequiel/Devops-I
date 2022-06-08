@@ -8,6 +8,10 @@ stages:
 
 build website:
   stage: build
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
   script:
     - echo $CI_COMMIT_SHORT_SHA
     - npm install
